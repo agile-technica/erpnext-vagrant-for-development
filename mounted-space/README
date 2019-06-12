@@ -1,0 +1,2 @@
+Mounted space is where the ERPNext files will live
+The idea is that we can edit directly from the host for development and should be able to push when needed
