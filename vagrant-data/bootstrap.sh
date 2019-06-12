@@ -11,6 +11,18 @@ echo 'Acquire::ForceIPv4 "true";' | sudo tee /etc/apt/apt.conf.d/99force-ipv4
 sudo apt-get install ssh -y
 sudo service ssh restart
 
+# ### SWAP SETUP
+sudo fallocate -l 4G /swapfile
+sudo ls -lh /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+sudo swapon -s
+sudo free -m
+
+# now we update fstab so that we can always use swap
+sudo sh -c 'echo "/swapfile   none    swap    sw    0   0" >> /etc/fstab'
+# ### END OF SWAP SETUP
 
 sudo apt-get install curl -y
 curl -sS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash
