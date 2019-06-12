@@ -5,6 +5,9 @@ NEWSITENAME="erpnextdev.agiletechnica.com"
 ERPNEXT_GIT="https://github.com/agile-technica/erpnext.git"
 FRAPPE_GIT="https://github.com/agile-technica/frappe.git"
 
+#force ipv4 for apt so that we don't wait for timeouts
+echo 'Acquire::ForceIPv4 "true";' | sudo tee /etc/apt/apt.conf.d/99force-ipv4
+
 sudo apt-get install ssh -y
 sudo service ssh restart
 
@@ -262,6 +265,9 @@ sudo npm install -g yarn
 sudo chown -R $USER:$GROUP ~/.npm
 sudo chown -R $USER:$GROUP ~/.config
 
+#do this so that windows doesn't crap out
+export VIRTUALENV_ALWAYS_COPY=1
+
 #move to the mounted app vagrant directory again 
 cd /mounted-space/app/
 
@@ -282,10 +288,7 @@ cd /mounted-space/app/frappe-bench && bench config dns_multitenant on
 
 #update the erpnext git remote so that it's not locked to master only
 cd /mounted-space/app/frappe-bench/apps/erpnext
-git remote rm upstream
-git remote add upstream $ERPNEXT_GIT
-git fetch --all
-git checkout --track upstream/master
+git fetch --unshallow 
 
 
 read -r -d '' TERMINAL_MESSAGE << EOF

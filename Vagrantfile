@@ -56,7 +56,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #
   config.vm.provider "virtualbox" do |vb|
     # Don't boot with headless mode
-      vb.gui = false
+    vb.gui = false
+
+    #enable symlink
+    vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/v-root", "1"]
   end
 
   config.vm.provider :virtualbox do |vb|
