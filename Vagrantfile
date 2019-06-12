@@ -66,7 +66,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
      vb.customize ["modifyvm", :id, "--memory", 2048] # 2048 mb RAM
      vb.customize ["modifyvm", :id, "--chipset", "ich9"] # Modern ICH9 chipset
      vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+     vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
      vb.customize ["modifyvm", :id, "--cpus", "2"]
+     vb.customize ["modifyvm", :id, "--ioapic", "on"]
   end
 
   config.vm.provision "shell", path: "vagrant-data/bootstrap.sh", privileged: false
