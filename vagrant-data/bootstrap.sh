@@ -300,7 +300,8 @@ cd /mounted-space/app/frappe-bench && bench config dns_multitenant on
 
 #update the erpnext git remote so that it's not locked to master only
 cd /mounted-space/app/frappe-bench/apps/erpnext
-git fetch --unshallow 
+git config remote.upstream.fetch "+refs/heads/*:refs/remotes/upstream/*"
+git fetch
 
 
 read -r -d '' TERMINAL_MESSAGE << EOF
