@@ -320,6 +320,9 @@ read -r -d '' TERMINAL_MESSAGE << EOF
  !If your initial setup keeps failing, just keep retrying, it's because Wekzeug
  detected changes and it decided to reload the server!
 
+ If you make any change run this command to apply:
+    bench clear-cache && bench update --build && bench migrate
+
 ===============================================================================
 
 EOF
