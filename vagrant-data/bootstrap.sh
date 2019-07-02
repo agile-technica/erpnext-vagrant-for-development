@@ -2,8 +2,8 @@
 
 #we'll use localhost, but if need be we can also use host file later on
 NEWSITENAME="erpnextdev.agiletechnica.com"
-ERPNEXT_GIT="https://github.com/agile-technica/erpnext.git"
-FRAPPE_GIT="https://github.com/agile-technica/frappe.git"
+ERPNEXT_GIT="https://github.com/frappe/erpnext.git"
+FRAPPE_GIT="https://github.com/frappe/frappe.git"
 
 #force ipv4 for apt so that we don't wait for timeouts
 echo 'Acquire::ForceIPv4 "true";' | sudo tee /etc/apt/apt.conf.d/99force-ipv4
