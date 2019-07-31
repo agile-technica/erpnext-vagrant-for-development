@@ -285,11 +285,11 @@ export VIRTUALENV_ALWAYS_COPY=1
 cd /mounted-space/app/
 
 echo "Initializing Frappe-Bench"
-echo "bench init --frappe-path $FRAPPE_GIT --frappe-branch master frappe-bench"
-bench init --frappe-path $FRAPPE_GIT --frappe-branch master frappe-bench
+echo "bench init --frappe-path $FRAPPE_GIT --frappe-branch version-12 frappe-bench"
+bench init --frappe-path $FRAPPE_GIT --frappe-branch version-12 frappe-bench
 
 echo "Checking out ERPNEXT"
-cd /mounted-space/app/frappe-bench && bench get-app erpnext $ERPNEXT_GIT --branch master
+cd /mounted-space/app/frappe-bench && bench get-app erpnext $ERPNEXT_GIT --branch version-12
 
 
 
