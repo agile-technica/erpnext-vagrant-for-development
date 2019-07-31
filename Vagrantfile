@@ -64,11 +64,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.provider :virtualbox do |vb|
-     vb.customize ["modifyvm", :id, "--memory", 1024] # 1024 mb RAM minimum ram by default
+     vb.customize ["modifyvm", :id, "--memory", 4024] # 1024 mb RAM minimum ram by default
      vb.customize ["modifyvm", :id, "--chipset", "ich9"] # Modern ICH9 chipset
      vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
      vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
-     vb.customize ["modifyvm", :id, "--cpus", "2"]
+     vb.customize ["modifyvm", :id, "--cpus", "4"]
      vb.customize ["modifyvm", :id, "--ioapic", "on"]
   end
 
