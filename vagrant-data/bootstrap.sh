@@ -259,6 +259,7 @@ curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
 mkdir $INSTALL_DIR
+mkdir -p /mounted-space/app
 
 # run as agiletechnica
 git clone https://github.com/frappe/bench $INSTALL_DIR/bench-repo
@@ -296,6 +297,13 @@ cd $INSTALL_DIR/frappe-bench/apps/erpnext
 git config remote.upstream.fetch "+refs/heads/*:refs/remotes/upstream/*"
 git fetch
 
+# setup the cron for unison
+cd ~
+crontab -l > mycron
+echo "* * * * * unison /mounted-space/app $INSTALL_DIR -auto -fat -batch" >> mycron
+crontab mycron
+rm mycron
+
 
 read -r -d '' TERMINAL_MESSAGE << EOF
 ===============================================================================
@@ -315,6 +323,10 @@ read -r -d '' TERMINAL_MESSAGE << EOF
 
  If you make any change run this command to apply:
     bench clear-cache && bench update --build && bench migrate
+
+We are using unison to synchronise your files from the mounted space (accessible from host)
+   to the internal directory that vagrant uses.
+   This is set with cron to run every minute.
 
 ===============================================================================
 
