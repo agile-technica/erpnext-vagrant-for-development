@@ -4,11 +4,12 @@
 NEWSITENAME="erpnextdev.agiletechnica.com"
 ERPNEXT_GIT="https://github.com/frappe/erpnext.git"
 FRAPPE_GIT="https://github.com/frappe/frappe.git"
+INSTALL_DIR="/home/vagrant/app"
 
 #force ipv4 for apt so that we don't wait for timeouts
 echo 'Acquire::ForceIPv4 "true";' | sudo tee /etc/apt/apt.conf.d/99force-ipv4
 
-sudo apt-get install ssh -y
+sudo apt-get install unison ssh -y
 sudo service ssh restart
 
 # ### SWAP SETUP
@@ -257,21 +258,12 @@ sudo apt-get install redis-server -y
 curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
-#sudo adduser --disabled-password --quiet --gecos "User" agiletechnica
-#SERVERUSER_PASSWORD="agiletechnica"
-# set password
-#sudo echo "agiletechnica:$SERVERUSER_PASSWORD" | sudo chpasswd
-
-#sudo usermod -aG sudo agiletechnica
-
-mkdir /mounted-space/app
-
-#sudo chown agiletechnica:agiletechnica /mounted-space/app
+mkdir $INSTALL_DIR
 
 # run as agiletechnica
-git clone https://github.com/frappe/bench /mounted-space/app/bench-repo
+git clone https://github.com/frappe/bench $INSTALL_DIR/bench-repo
 
-cd /mounted-space/app/ && sudo pip install -e bench-repo
+cd $INSTALL_DIR/ && sudo pip install -e bench-repo
 
 sudo npm install -g yarn
 
@@ -281,26 +273,26 @@ sudo chown -R $USER:$GROUP ~/.config
 #do this so that windows doesn't crap out
 export VIRTUALENV_ALWAYS_COPY=1
 
-#move to the mounted app vagrant directory again 
-cd /mounted-space/app/
+#move to the $INSTALL_DIR vagrant directory again 
+cd $INSTALL_DIR/
 
 echo "Initializing Frappe-Bench"
 echo "bench init --frappe-path $FRAPPE_GIT --frappe-branch version-12 frappe-bench"
-bench init --frappe-path $FRAPPE_GIT --frappe-branch version-12 frappe-bench
+bench init --frappe-path $FRAPPE_GIT --frappe-branch version-11 frappe-bench
 
 echo "Checking out ERPNEXT"
-cd /mounted-space/app/frappe-bench && bench get-app erpnext $ERPNEXT_GIT --branch version-12
+cd $INSTALL_DIR/frappe-bench && bench get-app erpnext $ERPNEXT_GIT --branch version-11
 
 
 
 ADMIN_PASSWORD="administrator"
 
-cd /mounted-space/app/frappe-bench && bench new-site --admin-password $ADMIN_PASSWORD --mariadb-root-password $DB_ROOT_PASSWORD --install-app erpnext --verbose $NEWSITENAME
+cd $INSTALL_DIR/frappe-bench && bench new-site --admin-password $ADMIN_PASSWORD --mariadb-root-password $DB_ROOT_PASSWORD --install-app erpnext --verbose $NEWSITENAME
 
-cd /mounted-space/app/frappe-bench && bench config dns_multitenant on
+cd $INSTALL_DIR/frappe-bench && bench config dns_multitenant on
 
 #update the erpnext git remote so that it's not locked to master only
-cd /mounted-space/app/frappe-bench/apps/erpnext
+cd $INSTALL_DIR/frappe-bench/apps/erpnext
 git config remote.upstream.fetch "+refs/heads/*:refs/remotes/upstream/*"
 git fetch
 
@@ -315,7 +307,7 @@ read -r -d '' TERMINAL_MESSAGE << EOF
  Database password: $DB_ROOT_PASSWORD                                                            
  Run using: 
     vagrant ssh
-    cd /mounted-space/app/frappe-bench && bench start
+    cd $INSTALL_DIR/frappe-bench && bench start
  Access from browser: http://localhost:8000
 
  !If your initial setup keeps failing, just keep retrying, it's because Wekzeug
