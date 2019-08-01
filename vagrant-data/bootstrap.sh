@@ -279,10 +279,10 @@ cd $INSTALL_DIR/
 
 echo "Initializing Frappe-Bench"
 echo "bench init --frappe-path $FRAPPE_GIT --frappe-branch version-12 frappe-bench"
-bench init --frappe-path $FRAPPE_GIT --frappe-branch version-11 frappe-bench
+bench init --frappe-path $FRAPPE_GIT --frappe-branch version-12 frappe-bench
 
 echo "Checking out ERPNEXT"
-cd $INSTALL_DIR/frappe-bench && bench get-app erpnext $ERPNEXT_GIT --branch version-11
+cd $INSTALL_DIR/frappe-bench && bench get-app erpnext $ERPNEXT_GIT --branch version-12
 
 
 
