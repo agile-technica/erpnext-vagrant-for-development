@@ -300,9 +300,19 @@ git fetch
 # setup the cron for unison
 cd ~
 crontab -l > mycron
-echo "* * * * * unison /mounted-space/app $INSTALL_DIR -auto -fat -batch" >> mycron
+echo "# * * * * * unison /mounted-space/app $INSTALL_DIR -auto -fat -batch > /mounted-space/sync.log" >> mycron
 crontab mycron
 rm mycron
+
+#setup sync script
+read -r -d '' SYNC_SCRIPT << EOF
+#!/usr/bin/env bash
+unison /mounted-space/app $INSTALL_DIR -auto -fat -batch
+EOF
+
+echo "$SYNC_SCRIPT" | sudo tee -a /mounted-space/sync.sh
+chmod 755 /mounted-space/sync.sh
+
 
 
 read -r -d '' TERMINAL_MESSAGE << EOF
@@ -326,7 +336,15 @@ read -r -d '' TERMINAL_MESSAGE << EOF
 
 We are using unison to synchronise your files from the mounted space (accessible from host)
    to the internal directory that vagrant uses.
-   This is set with cron to run every minute.
+   This can be set with cron to run every minute (default is off) just edit the crontab
+
+   or run below command:
+   (you can sync selective directory too, just change the paths)
+   unison /mounted-space/app $INSTALL_DIR -auto -fat -batch > /mounted-space/sync.log
+
+   or the shortcut
+
+   /mounted-space/sync.sh
 
 ===============================================================================
 
