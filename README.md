@@ -3,6 +3,12 @@ Just a simple vagrant setup for development purpose so that it's easier to get i
 
 The frappe and erpnext codes will be checked out under /mounted-space/
 
+## Pre-requisite
+install the vagrant volume plugin
+
+On your terminal: vagrant plugin install vagrant-disksize
+
+
 ## To Run:
 1. Open your terminal (WINDOWS user ==> use administrative CMD, otherwise Yarn symlink is not going to work)
 2. vagrant up
