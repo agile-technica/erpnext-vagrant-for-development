@@ -9,7 +9,9 @@ INSTALL_DIR="/home/vagrant/app"
 #force ipv4 for apt so that we don't wait for timeouts
 echo 'Acquire::ForceIPv4 "true";' | sudo tee /etc/apt/apt.conf.d/99force-ipv4
 
-sudo apt-get install unison ssh -y
+sudo apt-get update
+sudo apt-get install ssh -y
+sudo apt-get install unison -y
 sudo service ssh restart
 
 # ### SWAP SETUP
@@ -250,13 +252,21 @@ echo "$MARIADBMYCNFCONTENTS" | sudo tee /etc/mysql/my.cnf
 
 sudo service mysql restart
 
-sudo apt-get -y install git python-dev python-setuptools python-pip libmysqlclient-dev redis-server
+sudo apt-get -y install git libmysqlclient-dev redis-server
 
-sudo apt-get install python-dev -y
-sudo apt-get install python-setuptools python-pip virtualenv -y
+sudo apt-get install python3-dev -y
+sudo apt-get install python3-setuptools python3-pip virtualenv -y
+
+alias python=python3
+alias pip=pip3
+
 sudo apt-get install redis-server -y
 curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
 sudo apt-get install -y nodejs
+
+virtualenv -q env -p /usr/bin/python3
+pip3 install PyYAML==3.13 #somehow we need to do this explicitly so that version12 doesn't explode
+env/bin/pip install PyYAML==3.13
 
 mkdir $INSTALL_DIR
 mkdir -p /mounted-space/app
@@ -264,7 +274,7 @@ mkdir -p /mounted-space/app
 # run as agiletechnica
 git clone https://github.com/frappe/bench $INSTALL_DIR/bench-repo
 
-cd $INSTALL_DIR/ && sudo pip install -e bench-repo
+cd $INSTALL_DIR/ && sudo pip3 install -e bench-repo
 
 sudo npm install -g yarn
 
@@ -272,19 +282,21 @@ sudo chown -R $USER:$GROUP ~/.npm
 sudo chown -R $USER:$GROUP ~/.config
 
 #do this so that windows doesn't crap out
-export VIRTUALENV_ALWAYS_COPY=1
+# export VIRTUALENV_ALWAYS_COPY=1
 
 #move to the $INSTALL_DIR vagrant directory again 
 cd $INSTALL_DIR/
 
 echo "Initializing Frappe-Bench"
-echo "bench init --frappe-path $FRAPPE_GIT --frappe-branch version-12 frappe-bench"
-bench init --frappe-path $FRAPPE_GIT --frappe-branch version-12 frappe-bench
+echo "bench init --python /usr/bin/python3 --frappe-path $FRAPPE_GIT --frappe-branch version-12 frappe-bench"
+bench init --python /usr/bin/python3 --frappe-path $FRAPPE_GIT --frappe-branch version-12 frappe-bench
+$INSTALL_DIR/frappe-bench/env/bin/pip3 install PyYAML==3.13
+$INSTALL_DIR/frappe-bench/env/bin/pip3 install -e frappe-bench/apps/frappe/
+
+#frappe-bench/env/bin/pip install PyYAML==3.13
 
 echo "Checking out ERPNEXT"
 cd $INSTALL_DIR/frappe-bench && bench get-app erpnext $ERPNEXT_GIT --branch version-12
-
-
 
 ADMIN_PASSWORD="administrator"
 
