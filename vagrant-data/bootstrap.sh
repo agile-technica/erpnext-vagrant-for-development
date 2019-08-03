@@ -8,6 +8,13 @@ INSTALL_DIR="/home/vagrant/app"
 
 #force ipv4 for apt so that we don't wait for timeouts
 echo 'Acquire::ForceIPv4 "true";' | sudo tee /etc/apt/apt.conf.d/99force-ipv4
+sudo sed -i 's|#precedence ::ffff:0:0/96  100|precedence ::ffff:0:0/96  100|g' /etc/gai.conf
+
+#force apt to use mirrors so it's faster to spin up. Not sure why the default isn't this!
+echo "Use local apt mirrors"
+#sudo sed -i -e 's%http://archive.ubuntu.com/ubuntu%mirror://mirrors.ubuntu.com/mirrors.txt%' -e 's/^deb-src/#deb-src/' /etc/apt/sources.list
+sudo sed -i -e 's%http://archive.ubuntu.com/ubuntu%http://mirror.internode.on.net/pub/ubuntu/ubuntu%' -e 's/^deb-src/#deb-src/' /etc/apt/sources.list
+
 
 sudo apt-get update
 sudo apt-get install ssh -y
@@ -252,10 +259,14 @@ echo "$MARIADBMYCNFCONTENTS" | sudo tee /etc/mysql/my.cnf
 
 sudo service mysql restart
 
-sudo apt-get -y install git libmysqlclient-dev redis-server
+sudo apt-get install git -y 
+sudo apt-get install libmysqlclient-dev 
+sudo apt-get install redis-server -y
 
 sudo apt-get install python3-dev -y
-sudo apt-get install python3-setuptools python3-pip virtualenv -y
+sudo apt-get install python3-setuptools -y
+sudo apt-get install python3-pip -y
+sudo apt-get install virtualenv -y
 
 alias python=python3
 alias pip=pip3
@@ -271,9 +282,11 @@ env/bin/pip install PyYAML==3.13
 mkdir $INSTALL_DIR
 mkdir -p /mounted-space/app
 
-# run as agiletechnica
+# run as agiletechnica'
+echo "Cloning bench repo"
 git clone https://github.com/frappe/bench $INSTALL_DIR/bench-repo
 
+echo "Installing bench via pip3"
 cd $INSTALL_DIR/ && sudo pip3 install -e bench-repo
 
 sudo npm install -g yarn
