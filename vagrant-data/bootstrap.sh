@@ -284,7 +284,7 @@ mkdir -p /mounted-space/app
 
 # run as agiletechnica'
 echo "Cloning bench repo"
-git clone https://github.com/frappe/bench $INSTALL_DIR/bench-repo
+git clone https://github.com/frappe/bench $INSTALL_DIR/bench-repo  --progress --verbose
 
 echo "Installing bench via pip3"
 cd $INSTALL_DIR/ && sudo pip3 install -e bench-repo
@@ -322,23 +322,7 @@ cd $INSTALL_DIR/frappe-bench/apps/erpnext
 git config remote.upstream.fetch "+refs/heads/*:refs/remotes/upstream/*"
 git fetch
 
-# setup the cron for unison
-cd ~
-crontab -l > mycron
-echo "# * * * * * unison /mounted-space/app $INSTALL_DIR -auto -fat -batch > /mounted-space/sync.log" >> mycron
-crontab mycron
-rm mycron
-
-#setup sync script
-read -r -d '' SYNC_SCRIPT << EOF
-#!/usr/bin/env bash
-unison /mounted-space/app $INSTALL_DIR -auto -fat -batch
-EOF
-
-echo "$SYNC_SCRIPT" | sudo tee -a /mounted-space/sync.sh
-chmod 755 /mounted-space/sync.sh
-
-
+sh /mounted_space/sync_to_host.sh
 
 read -r -d '' TERMINAL_MESSAGE << EOF
 ===============================================================================
@@ -358,18 +342,6 @@ read -r -d '' TERMINAL_MESSAGE << EOF
 
  If you make any change run this command to apply:
     bench clear-cache && bench update --build && bench migrate
-
-We are using unison to synchronise your files from the mounted space (accessible from host)
-   to the internal directory that vagrant uses.
-   This can be set with cron to run every minute (default is off) just edit the crontab
-
-   or run below command:
-   (you can sync selective directory too, just change the paths)
-   unison /mounted-space/app $INSTALL_DIR -auto -fat -batch > /mounted-space/sync.log
-
-   or the shortcut
-
-   /mounted-space/sync.sh
 
 ===============================================================================
 

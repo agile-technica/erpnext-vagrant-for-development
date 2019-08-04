@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-rsync -r -v /mounted-space/app/ /home/vagrant/app/ 
+rsync -r --inplace  /mounted-space/app/ /home/vagrant/app/ 
 

@@ -108,3 +108,4 @@ venv.bak/
 *.sql
 
 mounted-space/sync\.sh
+.idea
