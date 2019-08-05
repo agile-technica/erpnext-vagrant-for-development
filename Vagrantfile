@@ -48,9 +48,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # argument is a set of non-required options.
   # config.vm.synced_folder "../data", "/vagrant_data"
   # config.vm.synced_folder "./", "/vagrant/", :extra => "dmode=777,fmode=777"
-  config.vm.synced_folder "./mounted-space", "/mounted-space", type: "nfs"
+  config.vm.synced_folder "./mounted-space", "/mounted-space"
   
-  config.vm.synced_folder "./vagrant-data", "/vagrant-data", type: "nfs"
+  config.vm.synced_folder "./vagrant-data", "/vagrant-data"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
