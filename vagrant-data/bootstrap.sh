@@ -322,7 +322,7 @@ cd $INSTALL_DIR/frappe-bench/apps/erpnext
 git config remote.upstream.fetch "+refs/heads/*:refs/remotes/upstream/*"
 git fetch
 
-sh /mounted_space/sync_to_host.sh
+/mounted_space/sync_to_host.sh
 
 read -r -d '' TERMINAL_MESSAGE << EOF
 ===============================================================================
