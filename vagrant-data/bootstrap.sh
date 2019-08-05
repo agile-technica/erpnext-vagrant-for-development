@@ -4,11 +4,21 @@
 NEWSITENAME="erpnextdev.agiletechnica.com"
 ERPNEXT_GIT="https://github.com/frappe/erpnext.git"
 FRAPPE_GIT="https://github.com/frappe/frappe.git"
+INSTALL_DIR="/home/vagrant/app"
 
 #force ipv4 for apt so that we don't wait for timeouts
 echo 'Acquire::ForceIPv4 "true";' | sudo tee /etc/apt/apt.conf.d/99force-ipv4
+sudo sed -i 's|#precedence ::ffff:0:0/96  100|precedence ::ffff:0:0/96  100|g' /etc/gai.conf
 
+#force apt to use mirrors so it's faster to spin up. Not sure why the default isn't this!
+echo "Use local apt mirrors"
+#sudo sed -i -e 's%http://archive.ubuntu.com/ubuntu%mirror://mirrors.ubuntu.com/mirrors.txt%' -e 's/^deb-src/#deb-src/' /etc/apt/sources.list
+sudo sed -i -e 's%http://archive.ubuntu.com/ubuntu%http://mirror.internode.on.net/pub/ubuntu/ubuntu%' -e 's/^deb-src/#deb-src/' /etc/apt/sources.list
+
+
+sudo apt-get update
 sudo apt-get install ssh -y
+sudo apt-get install unison -y
 sudo service ssh restart
 
 # ### SWAP SETUP
@@ -249,29 +259,35 @@ echo "$MARIADBMYCNFCONTENTS" | sudo tee /etc/mysql/my.cnf
 
 sudo service mysql restart
 
-sudo apt-get -y install git python-dev python-setuptools python-pip libmysqlclient-dev redis-server
+sudo apt-get install git -y 
+sudo apt-get install libmysqlclient-dev 
+sudo apt-get install redis-server -y
 
-sudo apt-get install python-dev -y
-sudo apt-get install python-setuptools python-pip virtualenv -y
+sudo apt-get install python3-dev -y
+sudo apt-get install python3-setuptools -y
+sudo apt-get install python3-pip -y
+sudo apt-get install virtualenv -y
+
+alias python=python3
+alias pip=pip3
+
 sudo apt-get install redis-server -y
 curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
-#sudo adduser --disabled-password --quiet --gecos "User" agiletechnica
-#SERVERUSER_PASSWORD="agiletechnica"
-# set password
-#sudo echo "agiletechnica:$SERVERUSER_PASSWORD" | sudo chpasswd
+virtualenv -q env -p /usr/bin/python3
+pip3 install PyYAML==3.13 #somehow we need to do this explicitly so that version12 doesn't explode
+env/bin/pip install PyYAML==3.13
 
-#sudo usermod -aG sudo agiletechnica
+mkdir $INSTALL_DIR
+mkdir -p /mounted-space/app
 
-mkdir /mounted-space/app
+# run as agiletechnica'
+echo "Cloning bench repo"
+git clone https://github.com/frappe/bench $INSTALL_DIR/bench-repo  --progress --verbose
 
-#sudo chown agiletechnica:agiletechnica /mounted-space/app
-
-# run as agiletechnica
-git clone https://github.com/frappe/bench /mounted-space/app/bench-repo
-
-cd /mounted-space/app/ && sudo pip install -e bench-repo
+echo "Installing bench via pip3"
+cd $INSTALL_DIR/ && sudo pip3 install -e bench-repo
 
 sudo npm install -g yarn
 
@@ -279,31 +295,34 @@ sudo chown -R $USER:$GROUP ~/.npm
 sudo chown -R $USER:$GROUP ~/.config
 
 #do this so that windows doesn't crap out
-export VIRTUALENV_ALWAYS_COPY=1
+# export VIRTUALENV_ALWAYS_COPY=1
 
-#move to the mounted app vagrant directory again 
-cd /mounted-space/app/
+#move to the $INSTALL_DIR vagrant directory again 
+cd $INSTALL_DIR/
 
 echo "Initializing Frappe-Bench"
-echo "bench init --frappe-path $FRAPPE_GIT --frappe-branch version-12 frappe-bench"
-bench init --frappe-path $FRAPPE_GIT --frappe-branch version-12 frappe-bench
+echo "bench init --python /usr/bin/python3 --frappe-path $FRAPPE_GIT --frappe-branch version-12 frappe-bench"
+bench init --python /usr/bin/python3 --frappe-path $FRAPPE_GIT --frappe-branch version-12 frappe-bench
+$INSTALL_DIR/frappe-bench/env/bin/pip3 install PyYAML==3.13
+$INSTALL_DIR/frappe-bench/env/bin/pip3 install -e frappe-bench/apps/frappe/
+
+#frappe-bench/env/bin/pip install PyYAML==3.13
 
 echo "Checking out ERPNEXT"
-cd /mounted-space/app/frappe-bench && bench get-app erpnext $ERPNEXT_GIT --branch version-12
-
-
+cd $INSTALL_DIR/frappe-bench && bench get-app erpnext $ERPNEXT_GIT --branch version-12
 
 ADMIN_PASSWORD="administrator"
 
-cd /mounted-space/app/frappe-bench && bench new-site --admin-password $ADMIN_PASSWORD --mariadb-root-password $DB_ROOT_PASSWORD --install-app erpnext --verbose $NEWSITENAME
+cd $INSTALL_DIR/frappe-bench && bench new-site --admin-password $ADMIN_PASSWORD --mariadb-root-password $DB_ROOT_PASSWORD --install-app erpnext --verbose $NEWSITENAME
 
-cd /mounted-space/app/frappe-bench && bench config dns_multitenant on
+cd $INSTALL_DIR/frappe-bench && bench config dns_multitenant on
 
 #update the erpnext git remote so that it's not locked to master only
-cd /mounted-space/app/frappe-bench/apps/erpnext
+cd $INSTALL_DIR/frappe-bench/apps/erpnext
 git config remote.upstream.fetch "+refs/heads/*:refs/remotes/upstream/*"
 git fetch
 
+sh /mounted_space/sync_to_host.sh
 
 read -r -d '' TERMINAL_MESSAGE << EOF
 ===============================================================================
@@ -315,7 +334,7 @@ read -r -d '' TERMINAL_MESSAGE << EOF
  Database password: $DB_ROOT_PASSWORD                                                            
  Run using: 
     vagrant ssh
-    cd /mounted-space/app/frappe-bench && bench start
+    cd $INSTALL_DIR/frappe-bench && bench start
  Access from browser: http://localhost:8000
 
  !If your initial setup keeps failing, just keep retrying, it's because Wekzeug

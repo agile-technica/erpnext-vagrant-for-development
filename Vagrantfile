@@ -12,6 +12,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Every Vagrant virtual environment requires a box to build off of.
   config.vm.box = "ubuntu/bionic64"
   config.vm.box_version = "20190531.0.0"
+  config.disksize.size = '50GB'
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -26,7 +27,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
   # config.vm.network "private_network", ip: "192.168.33.10"
-
+  config.vm.network :forwarded_port, guest: 22, host: 2222, auto_correct: true
   config.vm.network :forwarded_port, guest: 8000, host: 8000, auto_correct: true
   config.vm.network :forwarded_port, guest: 4242, host: 4247, auto_correct: true
   config.vm.network :forwarded_port, guest: 3306, host: 13307, auto_correct: true
@@ -47,9 +48,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # argument is a set of non-required options.
   # config.vm.synced_folder "../data", "/vagrant_data"
   # config.vm.synced_folder "./", "/vagrant/", :extra => "dmode=777,fmode=777"
-  config.vm.synced_folder "./mounted-space", "/mounted-space"
+  config.vm.synced_folder "./mounted-space", "/mounted-space", type: "nfs"
   
-  config.vm.synced_folder "./vagrant-data", "/vagrant-data"
+  config.vm.synced_folder "./vagrant-data", "/vagrant-data", type: "nfs"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -64,12 +65,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.provider :virtualbox do |vb|
-     vb.customize ["modifyvm", :id, "--memory", 1024] # 1024 mb RAM minimum ram by default
+     vb.customize ["modifyvm", :id, "--memory", 2048] # 1024 mb RAM minimum ram by default
      vb.customize ["modifyvm", :id, "--chipset", "ich9"] # Modern ICH9 chipset
      vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
      vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
-     vb.customize ["modifyvm", :id, "--cpus", "1"]
+     vb.customize ["modifyvm", :id, "--cpus", "2"]
      vb.customize ["modifyvm", :id, "--ioapic", "on"]
+     vb.customize ["modifyvm", :id, "--nictype1", "virtio"]  
   end
 
   config.vm.provision "shell", path: "vagrant-data/bootstrap.sh", privileged: false
