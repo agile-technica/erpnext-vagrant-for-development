@@ -22,10 +22,12 @@ Then move the app folder into one with timestamp postfix.
 This way if you forgot to push any changes, it's not all gone.
 
 ## How to work with the VM:
-1. After provisioning, do vagrant ssh, then run /mounted-space/sync.sh
-    This will run unison to sync everything to the mounted space
-2. Work in the mounted space, then you can run sync again to get your files to the frappe working directory
-3. Or, you can use rsync as well to sync between your host directory and the frappe VM
+1. After provisioning, do vagrant ssh, then run /mounted-space/
+2. Run sync_to_host.sh to sync the main apps for the first time (make sure everything is okay)
+3. Install the apps that you want to work with
+4. Run sync_to_host.sh to sync those apps again
+5. Do you code changes in the /mounted-space/ in your host machine
+5. Run sync_to_vm.sh to sync your changes to the VM so that you can see your changes in the website
 
 ## Why don't we just mount the code directory as it used to be?
 Well, it works well for vanilla installation under Windows and it does work when you create new apps.
