@@ -324,6 +324,8 @@ git fetch
 
 /mounted_space/sync_to_host.sh
 
+cd $INSTALL_DIR/frappe-bench && bench set-config developer_mode 1
+
 read -r -d '' TERMINAL_MESSAGE << EOF
 ===============================================================================
  Welcome to Agile Technica's ERPNext Development Vagrant                                         
