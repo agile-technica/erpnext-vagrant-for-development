@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-rsync -r --inplace --progress /mounted-space/app/ /home/vagrant/app/ 
+rsync -ru --exclude='.git/' --exclude='bench.egg-info/' --exclude='.idea/' --exclude='pids/' --inplace --progress /mounted-space/app/ /home/vagrant/app/ 
 
 cd /home/vagrant/app/frappe-bench/ && bench migrate 
 
