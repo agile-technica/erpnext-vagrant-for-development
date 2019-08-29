@@ -1,3 +1,7 @@
+"""
+Clean index deletes "duplicated" indexes as required
+Sometimes this can happen during development of frappe apps...
+"""
 import MySQLdb
 import re
 
