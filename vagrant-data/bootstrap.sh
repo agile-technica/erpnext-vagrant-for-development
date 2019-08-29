@@ -279,6 +279,8 @@ virtualenv -q env -p /usr/bin/python3
 pip3 install PyYAML==3.13 #somehow we need to do this explicitly so that version12 doesn't explode
 env/bin/pip install PyYAML==3.13
 
+pip3 install pip install python-dateutil
+
 mkdir $INSTALL_DIR
 mkdir -p /mounted-space/app
 
