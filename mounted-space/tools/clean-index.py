@@ -23,7 +23,7 @@ for table in cursor:
     all_indexes = cursor_index.fetchall()
 
     # if there are more than 30 indexes...chances are something is wrong
-    if len(all_indexes) > 30:
+    if len(all_indexes) > 12:
         for index in cursor_index:
             if re.match(".*_*[2-9]+", index[2]):
                 # if duplicated match found, drop the index

@@ -2,6 +2,8 @@
 
 SECONDS=0 ;
 
+python3 /mounted-space/tools/clean-index.py
+
 if [ "$1" != "" ]; then
     echo "Sync specific frappe app only"
     rsync -ru --exclude='.git/' --exclude='bench.egg-info/' --exclude='.idea/' --exclude='pids/' --inplace --progress /mounted-space/app/frappe-bench/apps/"$1"/ /home/vagrant/app/frappe-bench/apps/"$1"/
