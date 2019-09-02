@@ -48,7 +48,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # argument is a set of non-required options.
   # config.vm.synced_folder "../data", "/vagrant_data"
   # config.vm.synced_folder "./", "/vagrant/", :extra => "dmode=777,fmode=777"
-  config.vm.synced_folder "./mounted-space", "/mounted-space", type: "smb"
+  config.vm.synced_folder "./mounted-space", "/mounted-space", mount_options: ["dmode=777,fmode=777"]
 
   config.vm.synced_folder "./vagrant-data", "/vagrant-data"
 
