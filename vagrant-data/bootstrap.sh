@@ -4,7 +4,7 @@
 NEWSITENAME="erpnextdev.agiletechnica.com"
 ERPNEXT_GIT="https://github.com/frappe/erpnext.git"
 FRAPPE_GIT="https://github.com/frappe/frappe.git"
-INSTALL_DIR="/home/vagrant/app"
+INSTALL_DIR="/mounted-space/app-install/"
 
 #force ipv4 for apt so that we don't wait for timeouts
 echo 'Acquire::ForceIPv4 "true";' | sudo tee /etc/apt/apt.conf.d/99force-ipv4
@@ -281,8 +281,7 @@ env/bin/pip install PyYAML==3.13
 
 pip3 install pip install python-dateutil
 
-mkdir $INSTALL_DIR
-mkdir -p /mounted-space/app
+mkdir -p $INSTALL_DIR
 
 # run as agiletechnica'
 echo "Cloning bench repo"

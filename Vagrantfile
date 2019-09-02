@@ -48,8 +48,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # argument is a set of non-required options.
   # config.vm.synced_folder "../data", "/vagrant_data"
   # config.vm.synced_folder "./", "/vagrant/", :extra => "dmode=777,fmode=777"
-  config.vm.synced_folder "./mounted-space", "/mounted-space"
-  
+  config.vm.synced_folder "./mounted-space", "/mounted-space", type: "smb"
+
   config.vm.synced_folder "./vagrant-data", "/vagrant-data"
 
   # Provider-specific configuration so you can fine-tune various
@@ -61,11 +61,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vb.gui = true
 
     #enable symlink
-    vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/v-root", "1"]
+    vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/mounted-space", "1"]
   end
 
   config.vm.provider :virtualbox do |vb|
-     vb.customize ["modifyvm", :id, "--memory", 2048] # 1024 mb RAM minimum ram by default
+     vb.customize ["modifyvm", :id, "--memory", 4048] # 1024 mb RAM minimum ram by default
      vb.customize ["modifyvm", :id, "--chipset", "ich9"] # Modern ICH9 chipset
      vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
      vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]

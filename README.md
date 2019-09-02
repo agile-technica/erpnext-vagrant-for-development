@@ -6,8 +6,9 @@ The frappe and erpnext codes will be checked out under /mounted-space/
 ## Pre-requisite
 install the vagrant volume plugin
 
-On your terminal: vagrant plugin install vagrant-disksize
-
+### Virtual Box plugins to install 
+1. vagrant plugin install vagrant-disksize
+2. vagrant plugin install vagrant-vbguest
 
 ## To Run:
 1. Open your terminal
