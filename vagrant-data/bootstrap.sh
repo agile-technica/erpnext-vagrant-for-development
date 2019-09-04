@@ -328,6 +328,23 @@ git fetch
 
 cd $INSTALL_DIR/frappe-bench && bench set-config developer_mode 1
 
+# install samba share
+sudo apt install samba -y
+sudo echo -e "vagrant\nvagrant" | sudo smbpasswd -s -a vagrant
+
+read -r -d '' SMB_CONFIG << EOF
+[sambashare]
+    comment = App directory samba share
+    path = VAGRANT_SHARE_PATH
+    read only = no
+    browsable = yes
+EOF
+ 
+echo "$SMB_CONFIG" | sudo tee -a /etc/samba/smb.conf
+
+sudo sed -i 's/VAGRANT_SHARE_PATH/$INSTALL_DIR/' /etc/samba/smb.conf
+
+
 read -r -d '' TERMINAL_MESSAGE << EOF
 ===============================================================================
  Welcome to Agile Technica's ERPNext Development Vagrant                                         
