@@ -333,7 +333,7 @@ sudo apt install samba -y
 sudo echo -e "vagrant\nvagrant" | sudo smbpasswd -s -a vagrant
 
 read -r -d '' SMB_CONFIG << EOF
-[sambashare]
+[vagrantapp]
     comment = App directory samba share
     path = VAGRANT_SHARE_PATH
     read only = no
@@ -342,7 +342,7 @@ EOF
  
 echo "$SMB_CONFIG" | sudo tee -a /etc/samba/smb.conf
 
-sudo sed -i 's/VAGRANT_SHARE_PATH/$INSTALL_DIR/' /etc/samba/smb.conf
+sudo sed -i "s|VAGRANT_SHARE_PATH|$INSTALL_DIR/frappe-bench/apps|" /etc/samba/smb.conf
 
 
 read -r -d '' TERMINAL_MESSAGE << EOF
