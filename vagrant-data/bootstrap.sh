@@ -357,6 +357,7 @@ read -r -d '' TERMINAL_MESSAGE << EOF
     vagrant ssh
     cd $INSTALL_DIR/frappe-bench && bench start
  Access from browser: http://localhost:8000
+ Access your files via Samba share on: \\192.168.33.8 (best to mount it on your filesystem)
 
  !If your initial setup keeps failing, just keep retrying, it's because Wekzeug
  detected changes and it decided to reload the server!
