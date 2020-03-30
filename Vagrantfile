@@ -11,8 +11,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Every Vagrant virtual environment requires a box to build off of.
   config.vm.box = "ubuntu/bionic64"
-  config.vm.box_version = "20190531.0.0"
-  config.disksize.size = '50GB'
+  config.disksize.size = '30GB'
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -66,7 +65,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.provider :virtualbox do |vb|
-     vb.customize ["modifyvm", :id, "--memory", 2048] # 1024 mb RAM minimum ram by default
+     vb.customize ["modifyvm", :id, "--memory", 2048] # 2048 mb RAM minimum ram by default
      vb.customize ["modifyvm", :id, "--chipset", "ich9"] # Modern ICH9 chipset
      vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
      vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
