@@ -35,8 +35,8 @@ sudo sh -c 'echo "/swapfile   none    swap    sw    0   0" >> /etc/fstab'
 # ### END OF SWAP SETUP
 
 sudo apt-get install software-properties-common
-sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8
-sudo add-apt-repository 'deb [arch=amd64,arm64,ppc64el] http://mirror.biznetgio.com/mariadb/repo/10.3/ubuntu bionic main'
+sudo apt-key adv --fetch-keys 'https://mariadb.org/mariadb_release_signing_key.asc'
+sudo add-apt-repository 'deb [arch=amd64,arm64,ppc64el] http://mariadb.melbourneitmirror.net/repo/10.3/ubuntu bionic main'
 
 # set default password
 DB_ROOT_PASSWORD="root"
@@ -272,7 +272,7 @@ alias python=python3
 alias pip=pip3
 
 sudo apt-get install redis-server -y
-curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
 virtualenv -q env -p /usr/bin/python3
@@ -303,15 +303,15 @@ sudo chown -R $USER:$GROUP ~/.config
 cd $INSTALL_DIR/
 
 echo "Initializing Frappe-Bench"
-echo "bench init --python /usr/bin/python3 --frappe-path $FRAPPE_GIT --frappe-branch version-12 frappe-bench"
-bench init --python /usr/bin/python3 --frappe-path $FRAPPE_GIT --frappe-branch version-12 frappe-bench
+echo "bench init --python /usr/bin/python3 --frappe-path $FRAPPE_GIT --frappe-branch version-11 frappe-bench"
+bench init --python /usr/bin/python3 --frappe-path $FRAPPE_GIT --frappe-branch version-11 frappe-bench
 $INSTALL_DIR/frappe-bench/env/bin/pip3 install PyYAML==3.13
 $INSTALL_DIR/frappe-bench/env/bin/pip3 install -e frappe-bench/apps/frappe/
 
 #frappe-bench/env/bin/pip install PyYAML==3.13
 
 echo "Checking out ERPNEXT"
-cd $INSTALL_DIR/frappe-bench && bench get-app erpnext $ERPNEXT_GIT --branch version-12
+cd $INSTALL_DIR/frappe-bench && bench get-app erpnext $ERPNEXT_GIT --branch version-11
 
 ADMIN_PASSWORD="administrator"
 
