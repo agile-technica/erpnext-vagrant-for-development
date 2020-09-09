@@ -5,6 +5,10 @@ NEWSITENAME="erpnextdev.agiletechnica.com"
 ERPNEXT_GIT="https://github.com/frappe/erpnext.git"
 FRAPPE_GIT="https://github.com/frappe/frappe.git"
 INSTALL_DIR="/home/vagrant/app"
+APP_SERVER_DB_USER=vagrantroot #<enter database user here>
+APP_SERVER_IP=localhost #<app server private IP>
+APP_SERVER_DB_PASSWORD=root
+DB_NAME=vagrantdb
 
 #force ipv4 for apt so that we don't wait for timeouts
 echo 'Acquire::ForceIPv4 "true";' | sudo tee /etc/apt/apt.conf.d/99force-ipv4
@@ -36,18 +40,44 @@ sudo sh -c 'echo "/swapfile   none    swap    sw    0   0" >> /etc/fstab'
 
 sudo apt-get install software-properties-common
 sudo apt-key adv --fetch-keys 'https://mariadb.org/mariadb_release_signing_key.asc'
-sudo add-apt-repository 'deb [arch=amd64,arm64,ppc64el] http://mariadb.melbourneitmirror.net/repo/10.3/ubuntu bionic main'
+sudo add-apt-repository 'deb [arch=amd64,arm64,ppc64el] http://sgp1.mirrors.digitalocean.com/mariadb/repo/10.5/ubuntu focal main'
 
 # set default password
-DB_ROOT_PASSWORD="root"
+# DB_ROOT_PASSWORD="root"
 
-sudo debconf-set-selections <<< "mariadb-server mysql-server/root_password password $DB_ROOT_PASSWORD"
-sudo debconf-set-selections <<< "mariadb-server mysql-server/root_password_again password $DB_ROOT_PASSWORD"
+# sudo debconf-set-selections <<< "mariadb-server mysql-server/root_password password $DB_ROOT_PASSWORD"
+# sudo debconf-set-selections <<< "mariadb-server mysql-server/root_password_again password $DB_ROOT_PASSWORD"
 
-sudo debconf-set-selections <<< "mariadb-server-10.3 mysql-server/root_password password $DB_ROOT_PASSWORD"
-sudo debconf-set-selections <<< "mariadb-server-10.3 mysql-server/root_password_again password $DB_ROOT_PASSWORD"
+# sudo debconf-set-selections <<< "mariadb-server-10.3 mysql-server/root_password password $DB_ROOT_PASSWORD"
+# sudo debconf-set-selections <<< "mariadb-server-10.3 mysql-server/root_password_again password $DB_ROOT_PASSWORD"
 
 sudo apt-get install mariadb-server mariadb-client -y
+# set default password
+DB_ROOT_PASSWORD="root"
+#create mysql user
+QUERY_PART_PRIVILEGES='GRANT ALL PRIVILEGES ON *.* ';
+
+QUERY_PART_CREATE_USER=" TO '$APP_SERVER_DB_USER'@'$APP_SERVER_IP' IDENTIFIED BY '$APP_SERVER_DB_PASSWORD' WITH GRANT OPTION;"
+
+echo "$QUERY_PART_PRIVILEGES"$QUERY_PART_CREATE_USER;
+
+# need to use sudo to use root user for newer mariadb
+sudo mysql -uroot -p$DBROOTPASS -e "$QUERY_PART_PRIVILEGES"$QUERY_PART_CREATE_USER;
+sudo mysql -uroot -p$DBROOTPASS -e "FLUSH PRIVILEGES;"
+
+#!!! looks like a bug in Frappe installer https://github.com/frappe/frappe/issues/3354 db user behaving as root needs an empty database :(
+#    So if you haven't create a database with the username yet... it's time to do so
+
+sudo mysql -uroot -e "CREATE DATABASE $APP_SERVER_DB_USER;"
+
+#then somehow we need to grant this user to the ERPNext table explicitly...
+echo "grant all privileges on $DB_NAME.* to '$APP_SERVER_DB_USER'@'$APP_SERVER_IP' IDENTIFIED BY '$APP_SERVER_DB_PASSWORD' WITH GRANT OPTION;"
+sudo mysql -uroot -e "grant all privileges on $DB_NAME.* to '$APP_SERVER_DB_USER'@'$APP_SERVER_IP' IDENTIFIED BY '$APP_SERVER_DB_PASSWORD' WITH GRANT OPTION;"
+sudo mysql -uroot -e "grant all privileges on *.* to '$APP_SERVER_DB_USER'@'$APP_SERVER_IP' WITH GRANT OPTION;"
+
+# gotta grant privileges to the users' db... ERPNext bug for multi server setup
+sudo mysql -uroot -e "grant all privileges on $APP_SERVER_DB_USER.* to '$APP_SERVER_DB_USER'@'$APP_SERVER_IP' IDENTIFIED BY '$APP_SERVER_DB_PASSWORD' WITH GRANT OPTION;"
+
 sudo apt-get install libmysqlclient-dev -y
 sudo apt-get install openssh-server -y
 
@@ -276,25 +306,20 @@ curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
 virtualenv -q env -p /usr/bin/python3
-pip3 install PyYAML==3.13 #somehow we need to do this explicitly so that version12 doesn't explode
-env/bin/pip install PyYAML==3.13
+# pip3 install PyYAML==3.13 #somehow we need to do this explicitly so that version12 doesn't explode
+# env/bin/pip install PyYAML==3.13
 
 pip3 install pip install python-dateutil
 
 mkdir $INSTALL_DIR
 mkdir -p /mounted-space/app
 
-# run as agiletechnica'
-echo "Cloning bench repo"
-git clone https://github.com/frappe/bench $INSTALL_DIR/bench-repo  --progress --verbose
-
-echo "Installing bench via pip3"
-cd $INSTALL_DIR/ && sudo pip3 install -e bench-repo
+sudo pip3 install frappe-bench
 
 sudo npm install -g yarn
 
-sudo chown -R $USER:$GROUP ~/.npm
-sudo chown -R $USER:$GROUP ~/.config
+# sudo chown -R $USER:$GROUP ~/.npm
+# sudo chown -R $USER:$GROUP ~/.config
 
 #do this so that windows doesn't crap out
 # export VIRTUALENV_ALWAYS_COPY=1
@@ -305,7 +330,7 @@ cd $INSTALL_DIR/
 echo "Initializing Frappe-Bench"
 echo "bench init --python /usr/bin/python3 --frappe-path $FRAPPE_GIT --frappe-branch version-12 frappe-bench"
 bench init --python /usr/bin/python3 --frappe-path $FRAPPE_GIT --frappe-branch version-12 frappe-bench
-$INSTALL_DIR/frappe-bench/env/bin/pip3 install PyYAML==3.13
+# $INSTALL_DIR/frappe-bench/env/bin/pip3 install PyYAML==3.13
 $INSTALL_DIR/frappe-bench/env/bin/pip3 install -e frappe-bench/apps/frappe/
 
 #frappe-bench/env/bin/pip install PyYAML==3.13
@@ -315,7 +340,7 @@ cd $INSTALL_DIR/frappe-bench && bench get-app erpnext $ERPNEXT_GIT --branch vers
 
 ADMIN_PASSWORD="administrator"
 
-cd $INSTALL_DIR/frappe-bench && bench new-site --admin-password $ADMIN_PASSWORD --mariadb-root-password $DB_ROOT_PASSWORD --install-app erpnext --verbose $NEWSITENAME
+cd $INSTALL_DIR/frappe-bench && bench new-site --db-name $DB_NAME --mariadb-root-username $APP_SERVER_DB_USER --admin-password $ADMIN_PASSWORD --mariadb-root-password $APP_SERVER_DB_PASSWORD --verbose $NEWSITENAME
 
 cd $INSTALL_DIR/frappe-bench && bench config dns_multitenant on
 
@@ -352,7 +377,7 @@ read -r -d '' TERMINAL_MESSAGE << EOF
  Server Frappe user password: $SERVERUSER_PASSWORD                                               
  ERPNext administrator password: $ADMIN_PASSWORD                                                 
  Database user: root                                                                             
- Database password: $DB_ROOT_PASSWORD                                                            
+ Database password: $APP_SERVER_DB_PASSWORD                                                            
  Run using: 
     vagrant ssh
     cd $INSTALL_DIR/frappe-bench && bench start
