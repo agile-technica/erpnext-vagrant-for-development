@@ -9,6 +9,7 @@ APP_SERVER_DB_USER=vagrantroot #<enter database user here>
 APP_SERVER_IP=localhost #<app server private IP>
 APP_SERVER_DB_PASSWORD=root
 DB_NAME=vagrantdb
+ADMIN_PASSWORD="administrator"
 
 #force ipv4 for apt so that we don't wait for timeouts
 echo 'Acquire::ForceIPv4 "true";' | sudo tee /etc/apt/apt.conf.d/99force-ipv4
@@ -41,15 +42,6 @@ sudo sh -c 'echo "/swapfile   none    swap    sw    0   0" >> /etc/fstab'
 sudo apt-get install software-properties-common
 sudo apt-key adv --fetch-keys 'https://mariadb.org/mariadb_release_signing_key.asc'
 sudo add-apt-repository 'deb [arch=amd64,arm64,ppc64el] http://sgp1.mirrors.digitalocean.com/mariadb/repo/10.5/ubuntu focal main'
-
-# set default password
-# DB_ROOT_PASSWORD="root"
-
-# sudo debconf-set-selections <<< "mariadb-server mysql-server/root_password password $DB_ROOT_PASSWORD"
-# sudo debconf-set-selections <<< "mariadb-server mysql-server/root_password_again password $DB_ROOT_PASSWORD"
-
-# sudo debconf-set-selections <<< "mariadb-server-10.3 mysql-server/root_password password $DB_ROOT_PASSWORD"
-# sudo debconf-set-selections <<< "mariadb-server-10.3 mysql-server/root_password_again password $DB_ROOT_PASSWORD"
 
 sudo apt-get install mariadb-server mariadb-client -y
 # set default password
@@ -306,8 +298,6 @@ curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
 virtualenv -q env -p /usr/bin/python3
-# pip3 install PyYAML==3.13 #somehow we need to do this explicitly so that version12 doesn't explode
-# env/bin/pip install PyYAML==3.13
 
 pip3 install pip install python-dateutil
 
@@ -318,11 +308,6 @@ sudo pip3 install frappe-bench
 
 sudo npm install -g yarn
 
-# sudo chown -R $USER:$GROUP ~/.npm
-# sudo chown -R $USER:$GROUP ~/.config
-
-#do this so that windows doesn't crap out
-# export VIRTUALENV_ALWAYS_COPY=1
 
 #move to the $INSTALL_DIR vagrant directory again 
 cd $INSTALL_DIR/
@@ -330,15 +315,15 @@ cd $INSTALL_DIR/
 echo "Initializing Frappe-Bench"
 echo "bench init --python /usr/bin/python3 --frappe-path $FRAPPE_GIT --frappe-branch version-12 frappe-bench"
 bench init --python /usr/bin/python3 --frappe-path $FRAPPE_GIT --frappe-branch version-12 frappe-bench
-# $INSTALL_DIR/frappe-bench/env/bin/pip3 install PyYAML==3.13
 $INSTALL_DIR/frappe-bench/env/bin/pip3 install -e frappe-bench/apps/frappe/
 
-#frappe-bench/env/bin/pip install PyYAML==3.13
+
+# we need to recompile Numpy... because it's not compatible with Focal yet
+cd $INSTALL_DIR/frappe-bench && ./env/bin/pip install numpy==1.18.5
+cd $INSTALL_DIR/frappe-bench && ./env/bin/pip install pandas==0.24.2
 
 echo "Checking out ERPNEXT"
 cd $INSTALL_DIR/frappe-bench && bench get-app erpnext $ERPNEXT_GIT --branch version-12
-
-ADMIN_PASSWORD="administrator"
 
 cd $INSTALL_DIR/frappe-bench && bench new-site --db-name $DB_NAME --mariadb-root-username $APP_SERVER_DB_USER --admin-password $ADMIN_PASSWORD --mariadb-root-password $APP_SERVER_DB_PASSWORD --verbose $NEWSITENAME
 
