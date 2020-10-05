@@ -325,8 +325,7 @@ cd $INSTALL_DIR/frappe-bench && ./env/bin/pip install pandas==0.24.2
 echo "Checking out ERPNEXT"
 cd $INSTALL_DIR/frappe-bench && bench get-app erpnext $ERPNEXT_GIT --branch version-12
 
-cd $INSTALL_DIR/frappe-bench && bench new-site --db-name $DB_NAME --mariadb-root-username $APP_SERVER_DB_USER --admin-password $ADMIN_PASSWORD --mariadb-root-password $APP_SERVER_DB_PASSWORD --verbose $NEWSITENAME
-
+cd $INSTALL_DIR/frappe-bench && bench new-site --db-name $DB_NAME --mariadb-root-username $APP_SERVER_DB_USER --admin-password $ADMIN_PASSWORD --mariadb-root-password $APP_SERVER_DB_PASSWORD --install-app erpnext --verbose $NEWSITENAME
 cd $INSTALL_DIR/frappe-bench && bench config dns_multitenant on
 
 #update the erpnext git remote so that it's not locked to master only
